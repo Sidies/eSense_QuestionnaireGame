@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mobilecomputing_app/Design/appColors.dart';
 import 'package:mobilecomputing_app/QuestionsDataStore.dart';
+import 'package:mobilecomputing_app/eSense/BluetoothManager.dart';
 import 'package:mobilecomputing_app/mainPage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:esense_flutter/esense.dart';
 
+BluetoothManager bluetoothManager;
+
 void main() {
+  bluetoothManager = new BluetoothManager();
   runApp(QuestionnaireApp());
 }
 

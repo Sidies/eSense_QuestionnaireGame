@@ -6,6 +6,7 @@ import 'package:mobilecomputing_app/QuestionsDataStore.dart';
 import 'package:mobilecomputing_app/QuestionsGame.dart';
 import 'package:mobilecomputing_app/Design/appColors.dart';
 import 'package:mobilecomputing_app/Settings.dart';
+import 'package:mobilecomputing_app/eSense/BluetoothManager.dart';
 import 'package:mobilecomputing_app/main.dart';
 
 class MainPage extends StatefulWidget {
@@ -29,13 +30,24 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
 
-  void test() {
-    //QuestionnaireApp.questionsDataStore.currentQuestionData = new QuestionsData(new QuestionCatalog("blabalbub"), "noooo", false);
-    //QuestionnaireApp.questionsDataStore.currentQuestionCatalog.catalogTitle = "Lets change it again";
-    //QuestionnaireApp.questionsDataStore.currentQuestionCatalog = new QuestionCatalog("fuuuuu");
+  void toggleBluetooth() async {
+
+    /*bluetoothManager.isConnected() ?
+      bluetoothManager.disconnectFromESense() :
+      bluetoothManager.connectToESense();*/
+
+    bool connected = true;
+    if(!bluetoothManager.isConnected()) {
+      connected = await bluetoothManager.connectToESense();
+    }
+
+    if(connected)
+      bluetoothManager.getAccelerometerData();
+
     setState(() {
-      darkTheme();
+
     });
+
   }
 
   void rebuildAllChildren(BuildContext context) {
@@ -53,9 +65,9 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: backgroundColor,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.green,
+        backgroundColor: bluetoothManager.isConnected() ? Colors.green : Colors.red,
         child: const Icon(Icons.bluetooth_connected), onPressed: () {
-          test();
+          toggleBluetooth();
         },
       ),
       bottomNavigationBar: BottomAppBar(
