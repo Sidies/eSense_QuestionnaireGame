@@ -8,6 +8,7 @@ import 'package:mobilecomputing_app/Design/appColors.dart';
 import 'package:mobilecomputing_app/Settings.dart';
 import 'package:mobilecomputing_app/eSense/BluetoothManager.dart';
 import 'package:mobilecomputing_app/main.dart';
+import 'package:mobilecomputing_app/eSense/BluetoothManager.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -17,6 +18,8 @@ class MainPage extends StatefulWidget {
   final String title;
   final Key scaffoldKey;
   final _MainPageState state = new _MainPageState();
+
+
 
   void refreshUI() {
     state.setState(() {
@@ -30,20 +33,31 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
 
+  BluetoothManager manager = new BluetoothManager();
+
   void toggleBluetooth() async {
 
-    /*bluetoothManager.isConnected() ?
-      bluetoothManager.disconnectFromESense() :
-      bluetoothManager.connectToESense();*/
+    print('--------------------------');
+    String status = manager.deviceStatus;
+    print('DEVICE STATUS: $status');
 
-    bool connected = true;
-    if(!bluetoothManager.isConnected()) {
-      connected = await bluetoothManager.connectToESense();
+    if(!manager.isConnected()) {
+      manager.connectToESense();
+      print('--------------------------');
+      print('Start connecting ..');
     }
-
-    if(connected)
-      bluetoothManager.getAccelerometerData();
-
+    else {
+      if(manager.sampling) {
+        print('--------------------------');
+        print('Stop listening ..');
+        manager.pauseListenToSensorEvents();
+      }
+      else {
+        print('--------------------------');
+        print('Start listening ..');
+        manager.startListenToSensorEvents();
+      }
+    }
     setState(() {
 
     });
@@ -65,7 +79,7 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: backgroundColor,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: bluetoothManager.isConnected() ? Colors.green : Colors.red,
+        backgroundColor: manager.isConnected() ? Colors.green : Colors.red,
         child: const Icon(Icons.bluetooth_connected), onPressed: () {
           toggleBluetooth();
         },
