@@ -3,8 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mobilecomputing_app/Design/LoadingIndicator.dart';
 import 'package:mobilecomputing_app/Design/appColors.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobilecomputing_app/Utils/Gesture.dart';
 import 'package:mobilecomputing_app/main.dart';
 import 'package:mobilecomputing_app/mainPage.dart';
 
@@ -208,6 +210,14 @@ class QuestionsDataGameWidget extends StatelessWidget {
   String _text;
   bool _answer;
 
+  bool _bluetoothPlayerHasGivenAnswer = false;
+  bool _bluetoothPlayerAnswer;
+
+  bool _playerHasGivenAnswer = false;
+  bool _playerAnswer;
+
+  bool _dialogOpen = false;
+
   QuestionsDataGameWidget(QuestionsData question, String text, bool answer) {
     this._question = question;
     this._text = text;
@@ -217,7 +227,7 @@ class QuestionsDataGameWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-        margin: EdgeInsets.all(30),
+        margin: EdgeInsets.only(bottom: 30, left: 30, right: 30),
         //color: primaryColor.withOpacity(0.8),
         child: Container(
           padding: EdgeInsets.all(20),
@@ -227,13 +237,13 @@ class QuestionsDataGameWidget extends StatelessWidget {
               Text(this._text, style: TextStyle(
                 fontSize: 18,
               ),),
-              SizedBox(height: 40,),
-              Text("Interviewer Eingabe"),
+              SizedBox(height: 20,),
+              Text("Handy Spieler Eingabe"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   RaisedButton(
-                    color: positiveColor,
+                    color: _playerHasGivenAnswer && _playerAnswer ? positiveColor : Colors.grey,
                     child: Text("Ja"),
                     onPressed: () => {questionInput(true)},
                   ),
@@ -241,32 +251,50 @@ class QuestionsDataGameWidget extends StatelessWidget {
                     width: 10,
                   ),
                   RaisedButton(
-                    color: negativeColor,
+                    color: _playerHasGivenAnswer && !_playerAnswer ? negativeColor : Colors.grey,
                     child: Text("Nein"),
                     onPressed: () => {questionInput(false)},
                   )
                 ],
               ),
               SizedBox(height: 20,),
-              Text("Befragter Eingabe"),
+              Text("Bluetooth Spieler Eingabe"),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   RaisedButton(
-                    color: Colors.grey,
+                    color: _bluetoothPlayerHasGivenAnswer && _bluetoothPlayerAnswer ? positiveColor : Colors.grey,
                     child: Text("Ja"),
-                    //onPressed: () => { },
+                    onPressed: () => { },
                   ),
                   SizedBox(
                     width: 10,
                   ),
                   RaisedButton(
-                    color: Colors.grey,
+                    color: _bluetoothPlayerHasGivenAnswer && !_bluetoothPlayerAnswer ? negativeColor : Colors.grey,
                     child: Text("Nein"),
-                    //onPressed: () => {},
+                    onPressed: () => {},
                   )
                 ],
               ),
+              SizedBox(height: 10,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    this._playerHasGivenAnswer && this._bluetoothPlayerHasGivenAnswer ? 'Richtige Antwort: ' + (this._answer ? "Ja" : "Nein") : '',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(
+                    width: 30,
+                  ),
+                  RaisedButton(
+                      color: primaryColor,
+                      child: Text("Nächste Frage", style: TextStyle(color: secondaryTextColor),),
+                      onPressed: () => this.nextQuestion(),
+                  ),
+                ]
+              )
             ],
           ),
         )
@@ -274,10 +302,104 @@ class QuestionsDataGameWidget extends StatelessWidget {
   }
 
   void questionInput(bool answer) {
+    this._playerHasGivenAnswer = true;
+    this._playerAnswer = answer;
     if(answer == this._answer) {
       QuestionnaireApp.questionsDataStore.phonePlayerScore++;
     }
+    if(!MainPage.manager.sampling) {
+
+      this.showWaitingDialog();
+
+      MainPage.manager.startListeningToGesture((gesture)
+      {
+
+        print('Stop Sensor Listening');
+        MainPage.manager.pauseListenToSensorEvents();
+
+        bool answerFlag = false;
+        if(gesture.type == GestureType.Shaking) {
+          print('Gesture Detected: Shaking Gesture');
+          this._bluetoothPlayerHasGivenAnswer = true;
+          this._bluetoothPlayerAnswer = false;
+          answerFlag = this._answer == this._bluetoothPlayerAnswer;
+        }
+
+        if(gesture.type == GestureType.Nodding) {
+          print('Gesture Detected: Nodding Gesture');
+          this._bluetoothPlayerHasGivenAnswer = true;
+          this._bluetoothPlayerAnswer = true;
+          answerFlag = this._answer == this._bluetoothPlayerAnswer;
+        }
+
+        // Give bluetooth player a point if flag is true
+        if(answerFlag) {
+          QuestionnaireApp.questionsDataStore.bluetoothPlayerScore++;
+
+        }
+
+        QuestionnaireApp.mainPage.refreshUI();
+        this.hideOpenDialog();
+
+      });
+    }
+    else {
+      MainPage.manager.pauseListenToSensorEvents();
+      this.hideOpenDialog();
+    }
+
+    //QuestionnaireApp.questionsDataStore.nextQuestion();
+  }
+
+  void nextQuestion() {
+    this._bluetoothPlayerHasGivenAnswer = false;
     QuestionnaireApp.questionsDataStore.nextQuestion();
+  }
+
+  void showWaitingDialog() {
+    if(!this._dialogOpen) {
+      showDialog(
+          context: navigatorKey.currentContext,
+          barrierDismissible: false,
+          builder: (context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(8.0))
+              ),
+              backgroundColor: Colors.black87,
+              content: LoadingIndicator(
+                  text: "Warte auf Gestenerkennung"
+              ),
+            );
+          }
+      );
+      this._dialogOpen = true;
+    }
+  }
+
+  void showTextDialog(String text) {
+    showDialog(
+        context: navigatorKey.currentContext,
+        barrierDismissible: false,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(8.0))
+            ),
+            backgroundColor: Colors.black87,
+            content:
+                Text(text),
+          );
+        }
+    );
+  }
+
+  void hideOpenDialog() {
+    if(this._dialogOpen) {
+      print('Close open dialog');
+      Navigator.of(navigatorKey.currentContext).pop();
+      this._dialogOpen = false;
+    }
   }
 
 }

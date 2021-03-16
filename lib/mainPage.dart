@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backdrop/backdrop.dart';
@@ -9,6 +10,7 @@ import 'package:mobilecomputing_app/Settings.dart';
 import 'package:mobilecomputing_app/eSense/BluetoothManager.dart';
 import 'package:mobilecomputing_app/main.dart';
 import 'package:mobilecomputing_app/eSense/BluetoothManager.dart';
+import 'package:flushbar/flushbar.dart';
 
 class MainPage extends StatefulWidget {
 
@@ -19,7 +21,7 @@ class MainPage extends StatefulWidget {
   final Key scaffoldKey;
   final _MainPageState state = new _MainPageState();
 
-
+  static BluetoothManager manager = new BluetoothManager();
 
   void refreshUI() {
     state.setState(() {
@@ -33,29 +35,33 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
 
-  BluetoothManager manager = new BluetoothManager();
 
-  void toggleBluetooth() async {
+
+  void toggleBluetooth([String deviceName]) async {
 
     print('--------------------------');
-    String status = manager.deviceStatus;
+    String status = MainPage.manager.deviceStatus;
     print('DEVICE STATUS: $status');
 
-    if(!manager.isConnected()) {
-      manager.connectToESense();
-      print('--------------------------');
-      print('Start connecting ..');
-    }
-    else {
-      if(manager.sampling) {
-        print('--------------------------');
-        print('Stop listening ..');
-        manager.pauseListenToSensorEvents();
-      }
-      else {
-        print('--------------------------');
-        print('Start listening ..');
-        manager.startListenToSensorEvents();
+    String connectionDevice = deviceName != null ? deviceName : 'eSense-0115';
+
+    bool connection;
+    if(!MainPage.manager.isConnected()) {
+      connection = await MainPage.manager.connectToESense(connectionDevice,
+          () => {
+            this.setState(() {
+              this.showSnackBar("Verbindung erfolgreich!");
+            })
+          }
+      , () => {
+        this.setState(() {
+          this.showSnackBar("Keine Kopfhörer gefunden!");
+        })
+      });
+      if(connection) {
+        this.showSnackBar("Verbindung zu den Kopfhörern wird aufgebaut ..");
+        print(' ');
+        print('Start connecting ..');
       }
     }
     setState(() {
@@ -79,7 +85,7 @@ class _MainPageState extends State<MainPage> {
       backgroundColor: backgroundColor,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        backgroundColor: manager.isConnected() ? Colors.green : Colors.red,
+        backgroundColor: MainPage.manager.isConnected() ? Colors.green : Colors.red,
         child: const Icon(Icons.bluetooth_connected), onPressed: () {
           toggleBluetooth();
         },
@@ -124,7 +130,7 @@ class _MainPageState extends State<MainPage> {
                       Container(
                         padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
                         child: Center(
-                          child: Text(widget.title, style: TextStyle(color: secondaryTextColor, fontSize: 25)),
+                          child: Text(widget.title, style: TextStyle(color: titleTextColor, fontSize: 25)),
                         ),
                       ),
                       Expanded(
@@ -154,7 +160,11 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-
+  void showSnackBar(String string) {
+    ScaffoldMessenger.of(context).showSnackBar(new SnackBar(
+      content: new Text(string),
+    ));
+  }
 
 /*
 

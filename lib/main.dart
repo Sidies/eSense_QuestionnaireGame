@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:esense_flutter/esense.dart';
 
 BluetoothManager bluetoothManager;
+final navigatorKey = GlobalKey<NavigatorState>();
 
 void main() {
   bluetoothManager = new BluetoothManager();
@@ -18,6 +19,7 @@ class QuestionnaireApp extends StatelessWidget {
   static QuestionsDataStore questionsDataStore = new QuestionsDataStore();
   static MainPage mainPage = new MainPage(title: 'Questionnaire Game');
 
+
   @override
   Widget build(BuildContext context) {
     getAndSetThemeData();
@@ -27,6 +29,7 @@ class QuestionnaireApp extends StatelessWidget {
         primarySwatch: headerColor,
       ),
       home: mainPage,
+      navigatorKey: navigatorKey,
     );
   }
 

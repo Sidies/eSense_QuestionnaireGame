@@ -27,6 +27,7 @@ dependencies:
   backdrop: ^0.4.7
   shared_preferences: ^0.5.6+2
   esense_flutter: ^0.3.0
+  flushbar: ^1.10.4
 
 
   # The following adds the Cupertino Icons font to your application.

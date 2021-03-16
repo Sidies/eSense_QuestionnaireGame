@@ -12,6 +12,7 @@ Color textColor = Colors.black;
 Color secondaryTextColor = Colors.black;
 Color positiveColor = Colors.greenAccent;
 Color negativeColor = Colors.redAccent;
+Color titleTextColor = Colors.white;
 
 void darkTheme() {
    primaryColor = Color.fromRGBO(255, 255, 255, 1);
@@ -19,7 +20,7 @@ void darkTheme() {
    backgroundColor = Color.fromRGBO(0, 0, 0, 1);
    secondaryBackgroundColor = Color.fromRGBO(38, 38, 38, 1);
    textColor = Colors.white;
-   secondaryTextColor = Colors.white;
+   secondaryTextColor = Colors.black;
    positiveColor = Colors.greenAccent;
    negativeColor = Colors.redAccent;
 
