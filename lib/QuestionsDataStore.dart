@@ -48,16 +48,20 @@ class QuestionsDataStore {
     });
   }
 
+  // Initialize all Catalogs
   void initInitialCatalogs() {
     this.catalogs.add(initCatalogWithQuestions("Allgemeine Fragen", commonQuestions));
     this.catalogs.add(initCatalogWithQuestions("Ich habe noch nie..", iHaveNever));
+    this.catalogs.add(initCatalogWithQuestions("Star Wars Quiz", starWarsQuestions));
+    this.catalogs.add(initCatalogWithQuestions("Herr der Ringe Quiz", lordOfTheRingQuestions));
+    this.catalogs.add(initCatalogWithQuestions("In meinem Leben würde ich gerne..", iWouldLikeTo));
   }
 
   QuestionCatalog initCatalogWithQuestions(String catalogTitle, List<Question> questions) {
 
     QuestionCatalog newCatalog = new QuestionCatalog(catalogTitle);
     questions.forEach((element) {
-      newCatalog.addNewQuestion(new QuestionsData(newCatalog, element.question, element.positiveAnswer));
+      newCatalog.addNewQuestion(new QuestionsData(newCatalog, element.question, element.positiveAnswer, element.description));
     });
 
     return newCatalog;
@@ -111,7 +115,7 @@ class QuestionsDataStore {
         this._currentQuestion = this.currentQuestionCatalog.data[1];
       }
       else {
-        this._currentQuestion = this.currentQuestionCatalog.data.first;
+        this._currentQuestion = this.currentQuestionCatalog.data[0];
       }
       return this._currentQuestion;
 
@@ -126,12 +130,17 @@ class QuestionsDataStore {
 }
 
 class QuestionsStoreList extends StatelessWidget {
+  final _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(bottom: 38, left: 20, right: 20),
       child: Scrollbar(
+        controller: _scrollController,
+        isAlwaysShown: true,
         child: ListView(
+          controller: _scrollController,
           children: <Widget>[
             for(var item in QuestionnaireApp.questionsDataStore.catalogs) item.cardWidget
           ],

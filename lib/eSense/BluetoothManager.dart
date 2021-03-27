@@ -157,18 +157,16 @@ class BluetoothManager {
         bool shaking = false;
         if(highestX > 8500 || lowestX.abs() > 8500) {
           shaking = true;
-          onGestureDetected(new Gesture(GestureType.Shaking));
         }
         if(highestZ > 8500 || lowestZ.abs() > 5500) {
           nodding = true;
-
         }
 
         if(nodding && !shaking) {
           onGestureDetected(new Gesture(GestureType.Nodding));
         }
         else if(shaking && !nodding) {
-          onGestureDetected(new Gesture(GestureType.Nodding));
+          onGestureDetected(new Gesture(GestureType.Shaking));
         }
         gyros.clear();
       }

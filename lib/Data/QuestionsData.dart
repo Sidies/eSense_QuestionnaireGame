@@ -190,16 +190,18 @@ class QuestionsData {
 
   int questionID;
   String question;
+  String answerDescription;
   bool answer;
   QuestionsDataGameWidget questionsDataGameWidget;
   QuestionCatalog catalog;
 
-  QuestionsData(QuestionCatalog catalog, String question, bool positiveAnswer) {
+  QuestionsData(QuestionCatalog catalog, String question, bool positiveAnswer, String answerDescription) {
     this.answer = positiveAnswer;
+    this.answerDescription = answerDescription;
     this.catalog = catalog;
     this.question = question;
     questionID = answer.hashCode + question.hashCode;
-    this.questionsDataGameWidget = new QuestionsDataGameWidget(this, question, answer);
+    this.questionsDataGameWidget = new QuestionsDataGameWidget(this, question, answer, answerDescription);
   }
 
 }
@@ -208,6 +210,7 @@ class QuestionsDataGameWidget extends StatelessWidget {
 
   QuestionsData _question;
   String _text;
+  String _answerDescription;
   bool _answer;
 
   bool _bluetoothPlayerHasGivenAnswer = false;
@@ -218,10 +221,11 @@ class QuestionsDataGameWidget extends StatelessWidget {
 
   bool _dialogOpen = false;
 
-  QuestionsDataGameWidget(QuestionsData question, String text, bool answer) {
+  QuestionsDataGameWidget(QuestionsData question, String text, bool answer, String answerDescription) {
     this._question = question;
     this._text = text;
     this._answer = answer;
+    this._answerDescription = answerDescription;
   }
 
   @override
@@ -281,9 +285,15 @@ class QuestionsDataGameWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    this._playerHasGivenAnswer && this._bluetoothPlayerHasGivenAnswer ? 'Richtige Antwort: ' + (this._answer ? "Ja" : "Nein") : '',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  Column(
+                    children: [
+                      Text("Richtige Antwort:", style: TextStyle(fontWeight: FontWeight.bold),),
+                      Text(
+                        this._playerHasGivenAnswer && this._bluetoothPlayerHasGivenAnswer ? '' + ( this._answerDescription == null || this._answerDescription == ""
+                            ? (this._answer ? "Ja" : "Nein") : this._answerDescription) : '',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   SizedBox(
                     width: 30,
@@ -353,6 +363,7 @@ class QuestionsDataGameWidget extends StatelessWidget {
 
   void nextQuestion() {
     this._bluetoothPlayerHasGivenAnswer = false;
+    this._playerHasGivenAnswer = false;
     QuestionnaireApp.questionsDataStore.nextQuestion();
   }
 
@@ -407,14 +418,14 @@ class QuestionsDataGameWidget extends StatelessWidget {
 /* END QUESTION FOR EACH CATALOG */
 class EndQuestionData extends QuestionsData {
 
-  EndQuestionData(QuestionCatalog catalog) : super(catalog, "", false) {
+  EndQuestionData(QuestionCatalog catalog) : super(catalog, "", false, "") {
     this.questionsDataGameWidget = new EndQuestionWidget(this);
   }
 
 }
 
 class EndQuestionWidget extends QuestionsDataGameWidget {
-  EndQuestionWidget(QuestionsData question) : super(question, "", false);
+  EndQuestionWidget(QuestionsData question) : super(question, "", false, "");
 
   @override
   Widget build(BuildContext context) {

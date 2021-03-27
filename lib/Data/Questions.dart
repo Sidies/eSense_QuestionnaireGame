@@ -1,7 +1,10 @@
 class Question<Q, PA> {
   final Q question;
   final PA positiveAnswer;
-  Question(this.question, this.positiveAnswer);
+  String description = "";
+  Question(this.question, this.positiveAnswer, [String desc]) {
+    description = desc;
+  }
 }
 
 // common questions
@@ -28,10 +31,34 @@ final List<Question> commonQuestions = [
   Question("Hast du schon mal etwas gemacht, das deine Eltern niemals erfahren dürfen?", true),
 ];
 
+final List<Question> starWarsQuestions = [
+  Question("Yodas kompletter Name lautet 'Minch Yoda'", true),
+  Question("Während der Produktion hatte Star Wars den Arbeitstitel 'Jar-Jar's Big Adventure'", false, "Blue Harvest"),
+  Question("Die Sprache die Ewoks sprechen ist Tibetisch", true),
+  Question("Der Kommunikator von Qui-Gon Jinns wurde aus einem Damen Rasierer hergestellt", true),
+  Question("Yoda teilte seine Stimme mit den Filmfiguren Shrek, Nemo und Aladin", false, "Miss Piggy, Fozzie Bär und Bert"),
+  Question("Die Stimme von Chewbacca enstand aus einer Mischung eines Bären, Dachs und Löwen", true),
+  Question("Der Lichtschwerter Sound ist aus einer Mikrofon-Lautsprecher Interferenz entstanden", false, "Filprojektor & Kopfhörer Interferenz"),
+];
+
 final List<Question> iHaveNever = [
   Question("Ich habe noch nie intime Details über einen meiner Ex-Partner ausgeplaudert.", true),
   Question("Ich habe noch nie jemanden geküsst und es danach bereut.", true),
   Question("Ich habe noch nie nach dem Sport nicht geduscht.", true),
   Question("Ich habe noch nie an einer Ferienfreizeit teilgenommen.", false),
   Question("Ich habe noch nie etwas zerstört nur um mich an jemandem zu rächen.", false),
+];
+
+final List<Question> iWouldLikeTo = [
+  Question("Ich habe noch nie intime Details über einen meiner Ex-Partner ausgeplaudert.", true),
+  Question("Ich würde gerne zum Mond fliegen", true),
+];
+
+
+
+final List<Question> lordOfTheRingQuestions = [
+  Question("Ursprünglich gab es 3 der 'großen Ringe'", false, "20"),
+  Question("Ursprünglich gab es 3 der 'großen Ringe'", false, "20"),
+  Question("Der Herr der Ringe wurde in Australien gedreht", false, "Neuseeland"),
+  Question("Nach seiner Verwandlung hat Gandalf nichtmehr den Beinamen der Graue sondern der Weiße", true),
 ];
